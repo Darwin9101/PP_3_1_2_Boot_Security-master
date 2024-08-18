@@ -1,4 +1,4 @@
-package ru.kata.spring.boot_security.demo.configs.service;
+package ru.kata.spring.boot_security.demo.service;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +12,7 @@ import java.util.List;
 
 @Service
 @Transactional
-public class UserService {
+public class UserService implements ServiceInt {
 
     private UserRepository userRepository;
 
