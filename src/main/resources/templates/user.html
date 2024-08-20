@@ -1,28 +1,31 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Профиль пользователя</title>
-    <link rel="stylesheet" href="styles.css"> <!-- Подключение CSS файла -->
+    <title>Информация о пользователе</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
 <body>
-<header>
-    <h1>Профиль пользователя</h1>
-    <nav>
-        <ul>
-            <li><a href="/">Главная</a></li>
-            <li><a href="/admin">Панель администратора</a></li>
-            <li><a href="/logout">Выйти</a></li> <!-- Пример ссылки для выхода -->
-        </ul>
-    </nav>
-</header>
-<main>
-    <h2>Добро пожаловать, [Имя пользователя]!</h2>
-    <p>Здесь вы можете управлять своим профилем.</p>
-</main>
-<footer>
-    <p>&copy; 2024 Ваше приложение</p>
-</footer>
+
+<div class="container">
+    <h1 class="mt-4">Информация о пользователе</h1>
+
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">Имя: <span th:text="${user.name}"></span></h5>
+            <p class="card-text">Email: <span th:text="${user.email}"></span></p>
+            <p class="card-text">ID: <span th:text="${user.id}"></span></p>
+            <p class="card-text">Роли:
+                <span th:each="role : ${user.roles}" th:text="${role.name}" style="margin-right: 5px;"></span>
+            </p>
+        </div>
+    </div>
+
+    <a href="/login" class="btn btn-danger mt-3">Выход</a>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>

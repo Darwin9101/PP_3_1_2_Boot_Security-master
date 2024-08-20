@@ -8,10 +8,10 @@ import ru.kata.spring.boot_security.demo.models.Role;
 import ru.kata.spring.boot_security.demo.models.User;
 import ru.kata.spring.boot_security.demo.repository.UserRepository;
 
+import java.util.Collection;
 import java.util.List;
 
 @Service
-@Transactional
 public class UserService implements ServiceInt {
 
     private UserRepository userRepository;
@@ -29,18 +29,21 @@ public class UserService implements ServiceInt {
         userRepository.deleteById(id);
     }
 
-    @Transactional(readOnly = true)
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
 
-    @Transactional(readOnly = true)
     public User getUserById(Long id) {
         return userRepository.findById(id).get();
     }
 
-    @Transactional(readOnly = true)
-    public List<User> getUserByRole(Role role) {
-        return userRepository.findByRoles(role);
+    @Override
+    public void updateUser(User user, Long id) {
+        User userToUpdate = userRepository.findById(id).get();
+        userToUpdate.setName(user.getName());
+        userToUpdate.setEmail(user.getEmail());
+        userToUpdate.setPassword(user.getPassword());
+        userToUpdate.setRoles(user.getRoles());
+        userRepository.save(userToUpdate);
     }
 }

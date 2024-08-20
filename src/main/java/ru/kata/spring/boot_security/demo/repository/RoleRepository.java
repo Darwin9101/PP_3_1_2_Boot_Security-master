@@ -7,5 +7,5 @@ import ru.kata.spring.boot_security.demo.models.Role;
 
 @Repository
 public interface RoleRepository extends JpaRepository<Role, Long> {
-    // Role findByName(String name); для будующего возможного функционала, если нужен будет поиск юзеров по роли
+    Role findByName(String role);
 }
