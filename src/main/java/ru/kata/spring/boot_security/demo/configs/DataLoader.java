@@ -9,8 +9,8 @@ import ru.kata.spring.boot_security.demo.models.User;
 import ru.kata.spring.boot_security.demo.repository.RoleRepository;
 import ru.kata.spring.boot_security.demo.repository.UserRepository;
 
-import java.util.Collections;
 import java.util.Arrays;
+import java.util.Collections;
 
 @Component
 public class DataLoader implements CommandLineRunner {
