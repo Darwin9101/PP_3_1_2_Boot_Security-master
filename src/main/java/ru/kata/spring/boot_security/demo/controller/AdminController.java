@@ -2,40 +2,42 @@ package ru.kata.spring.boot_security.demo.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 import ru.kata.spring.boot_security.demo.models.Role;
 import ru.kata.spring.boot_security.demo.models.User;
-import ru.kata.spring.boot_security.demo.repository.UserRepository;
 import ru.kata.spring.boot_security.demo.service.RoleService;
+import ru.kata.spring.boot_security.demo.service.RoleServiceInt;
 import ru.kata.spring.boot_security.demo.service.ServiceInt;
+import ru.kata.spring.boot_security.demo.service.UserService;
 
 import java.security.Principal;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 @Controller
 @RequestMapping("/admin")
 public class AdminController {
 
-    private final ServiceInt serviceInt;
-    private final RoleService roleService;
-    private final UserRepository userRepository;
+    private final ServiceInt userService;
+    private final RoleServiceInt roleService;
 
     @Autowired
-    public AdminController(ServiceInt serviceInt, RoleService roleService, UserRepository userRepository) {
-        this.serviceInt = serviceInt;
+    public AdminController(UserService userService, RoleService roleService) {
+        this.userService = userService;
         this.roleService = roleService;
-        this.userRepository = userRepository;
     }
 
+    @Transactional(readOnly = true)
     @GetMapping
     public String index(ModelMap model, Principal principal) {
-        List<User> users = serviceInt.getAllUsers();
+        List<User> users = userService.getAllUsers(); // Измененный вызов
         model.addAttribute("users", users);
 
         if (principal != null) {
-            User user = userRepository.findByName(principal.getName());
+            User user = userService.getUserByName(principal.getName());
             model.addAttribute("loggedInAdmin", user);
         }
 
@@ -51,14 +53,16 @@ public class AdminController {
     }
 
     @PostMapping("/create")
+    @Transactional
     public String createUser(@ModelAttribute User user) {
-        serviceInt.insertUser(user);
+        userService.insertUser(user); // Измененный вызов
         return "redirect:/admin"; // Перенаправление на список пользователей
     }
 
+    @Transactional(readOnly = true)
     @GetMapping("/edit/{id}")
     public String editUser(@PathVariable Long id, ModelMap model) {
-        User user = serviceInt.getUserById(id);
+        User user = userService.getUserById(id); // Измененный вызов
         model.addAttribute("user", user);
         Collection<Role> allRoles = roleService.getAllRoles();
         model.addAttribute("allRoles", allRoles);
@@ -66,15 +70,20 @@ public class AdminController {
     }
 
     @PostMapping("/edit/{id}")
-    public String updateUser(@ModelAttribute User user, @PathVariable Long id) {
-        serviceInt.updateUser(user, id);
+    @Transactional
+    public String updateUser(@RequestParam String name,
+                             @RequestParam String email,
+                             @RequestParam(required = false) String password, // Пароль будет необязательным
+                             @RequestParam Set<Role> roles,
+                             @PathVariable Long id) {
+        userService.updateUser(name, email, password, roles, id); // Передайте параметры в сервис
         return "redirect:/admin"; // Перенаправление после обновления
     }
 
     @PostMapping("/delete/{id}")
-
+    @Transactional
     public String deleteUser(@PathVariable Long id) {
-        serviceInt.deleteUser(id);
+        userService.deleteUser(id); // Измененный вызов
         return "redirect:/admin"; // Перенаправление после удаления
     }
 
@@ -83,10 +92,11 @@ public class AdminController {
         return "redirect:/login"; // Перенаправление на страницу логина после выхода
     }
 
+    @Transactional(readOnly = true)
     @GetMapping("/admin")
     public String adminPage(ModelMap model, Principal principal) {
-            User user = userRepository.findByName(principal.getName());
-            model.addAttribute("loggedInAdmin", user);
+        User user = userService.getUserByName(principal.getName());
+        model.addAttribute("loggedInAdmin", user);
         return "admin"; // имя вашего шаблона
     }
 }

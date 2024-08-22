@@ -8,10 +8,11 @@ import ru.kata.spring.boot_security.demo.repository.RoleRepository;
 import java.util.Collection;
 
 @Service
-public class RoleService {
+public class RoleService implements RoleServiceInt {
     @Autowired
     private RoleRepository roleRepository;
 
+    @Override
     public Collection<Role> getAllRoles() {
         return roleRepository.findAll();
     }

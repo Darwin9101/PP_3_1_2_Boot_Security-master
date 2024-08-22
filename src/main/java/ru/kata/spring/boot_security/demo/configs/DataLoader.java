@@ -17,13 +17,11 @@ public class DataLoader implements CommandLineRunner {
 
     private final RoleRepository roleRepository;
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
 
     @Autowired
     public DataLoader(RoleRepository roleRepository, UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.roleRepository = roleRepository;
         this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -48,7 +46,7 @@ public class DataLoader implements CommandLineRunner {
             // Создание администратора
             User admin = new User();
             admin.setName("admin");
-            admin.setPassword(passwordEncoder.encode("admin"));
+            admin.setPassword("admin");
             admin.setEmail("admin@admin.com");
             admin.setRoles(Collections.singleton(roleRepository.findByName("ROLE_ADMIN")));
             userRepository.save(admin);
@@ -56,7 +54,7 @@ public class DataLoader implements CommandLineRunner {
             // Создание обычного пользователя
             User user = new User();
             user.setName("user");
-            user.setPassword(passwordEncoder.encode("user"));
+            user.setPassword("user");
             user.setEmail("user@user.com");
             user.setRoles(Collections.singleton(roleRepository.findByName("ROLE_USER")));
             userRepository.save(user);
