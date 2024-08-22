@@ -6,9 +6,11 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 import ru.kata.spring.boot_security.demo.models.Role;
 import ru.kata.spring.boot_security.demo.models.User;
+import ru.kata.spring.boot_security.demo.repository.UserRepository;
 import ru.kata.spring.boot_security.demo.service.RoleService;
 import ru.kata.spring.boot_security.demo.service.ServiceInt;
 
+import java.security.Principal;
 import java.util.Collection;
 import java.util.List;
 
@@ -18,17 +20,25 @@ public class AdminController {
 
     private final ServiceInt serviceInt;
     private final RoleService roleService;
+    private final UserRepository userRepository;
 
     @Autowired
-    public AdminController(ServiceInt serviceInt, RoleService roleService) {
+    public AdminController(ServiceInt serviceInt, RoleService roleService, UserRepository userRepository) {
         this.serviceInt = serviceInt;
         this.roleService = roleService;
+        this.userRepository = userRepository;
     }
 
     @GetMapping
-    public String index(ModelMap model) {
+    public String index(ModelMap model, Principal principal) {
         List<User> users = serviceInt.getAllUsers();
         model.addAttribute("users", users);
+
+        if (principal != null) {
+            User user = userRepository.findByName(principal.getName());
+            model.addAttribute("loggedInAdmin", user);
+        }
+
         return "admin";
     }
 
@@ -73,4 +83,10 @@ public class AdminController {
         return "redirect:/login"; // Перенаправление на страницу логина после выхода
     }
 
+    @GetMapping("/admin")
+    public String adminPage(ModelMap model, Principal principal) {
+            User user = userRepository.findByName(principal.getName());
+            model.addAttribute("loggedInAdmin", user);
+        return "admin"; // имя вашего шаблона
+    }
 }
