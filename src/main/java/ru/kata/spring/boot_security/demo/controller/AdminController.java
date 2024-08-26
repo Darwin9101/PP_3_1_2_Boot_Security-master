@@ -1,6 +1,7 @@
 package ru.kata.spring.boot_security.demo.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
@@ -30,6 +31,7 @@ public class AdminController {
         this.roleService = roleService;
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @Transactional(readOnly = true)
     @GetMapping
     public String index(ModelMap model, Principal principal) {

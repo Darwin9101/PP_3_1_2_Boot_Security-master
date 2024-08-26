@@ -1,6 +1,9 @@
 package ru.kata.spring.boot_security.demo.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.kata.spring.boot_security.demo.models.Role;
@@ -11,7 +14,7 @@ import java.util.List;
 import java.util.Set;
 
 @Service
-public class UserService implements ServiceInt {
+public class UserService implements ServiceInt, UserDetailsService {
 
     private final UserRepository userRepository;
 
@@ -54,5 +57,10 @@ public class UserService implements ServiceInt {
     @Transactional(readOnly = true) // Чтение данных
     public User getUserByName(String name) {
         return userRepository.findByName(name);
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        return userRepository.findByName(username);
     }
 }
