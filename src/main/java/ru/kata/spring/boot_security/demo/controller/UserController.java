@@ -16,7 +16,6 @@ import java.security.Principal;
 public class UserController {
 
     private final ServiceInt userService;
-    ;
 
     @Autowired
     public UserController(ServiceInt userService) {
