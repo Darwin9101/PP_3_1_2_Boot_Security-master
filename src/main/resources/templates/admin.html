@@ -15,7 +15,7 @@
     <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav ml-auto">
             <li class="nav-item">
-                <a class="nav-link" th:href="@{/login}">Выход</a>
+                <a class="nav-link" href="/login">Выход</a>
             </li>
         </ul>
     </div>
@@ -24,8 +24,7 @@
 <div class="container mt-4">
     <h2 class="text-center">Список пользователей</h2>
 
-    <span th:if="${loggedInAdmin}" class="h5">Залогиненный администратор: <span th:text="${loggedInAdmin.name}"></span></span>
-    <span th:if="${loggedInAdmin == null}" class="h5 text-danger">Пользователь не авторизован</span>
+    <span id="adminStatus" class="h5"></span>
 
     <div class="mb-3">
         <a href="/admin/create" class="btn btn-primary">Добавить пользователя</a>
@@ -41,21 +40,8 @@
             <th>Действия</th>
         </tr>
         </thead>
-        <tbody>
-        <tr th:each="user : ${users}">
-            <td th:text="${user.id}"></td>
-            <td th:text="${user.name}"></td>
-            <td th:text="${user.email}"></td>
-            <td>
-                <span th:each="role : ${user.roles}" th:text="${role.name}"></span>
-            </td>
-            <td>
-                <a th:href="@{/admin/edit/{id}(id=${user.id})}" class="btn btn-warning btn-sm">Редактировать</a>
-                <form th:action="@{/admin/delete/{id}(id=${user.id})}" method="post" style="display:inline;">
-                    <button type="submit" class="btn btn-danger btn-sm">Удалить</button>
-                </form>
-            </td>
-        </tr>
+        <tbody id="userTableBody">
+        <!-- Данные пользователей будут загружены с помощью JavaScript -->
         </tbody>
     </table>
 </div>
@@ -63,5 +49,61 @@
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<script>
+    async function loadUsers() {
+        try {
+            const response = await fetch('/api/users');
+            if (!response.ok) throw new Error('Ошибка загрузки пользователей');
+            const users = await response.json();
+
+            const tbody = document.getElementById('userTableBody');
+            tbody.innerHTML = ''; // Очищаем существующее содержимое
+
+            users.forEach(user => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${user.id}</td>
+                    <td>${user.name}</td>
+                    <td>${user.email}</td>
+                    <td>${user.roles.map(role => role.name).join(', ')}</td>
+                    <td>
+                        <a href="/admin/edit/${user.id}" class="btn btn-warning btn-sm">Редактировать</a>
+                        <button class="btn btn-danger btn-sm" onclick="deleteUser(${user.id})">Удалить</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        } catch (error) {
+            console.error('Ошибка:', error);
+        }
+    }
+
+    async function deleteUser(userId) {
+        if (confirm('Вы уверены, что хотите удалить этого пользователя?')) {
+            try {
+                const response = await fetch(`/api/users/${userId}`, { method: 'DELETE' });
+                if (!response.ok) throw new Error('Ошибка удаления пользователя');
+                loadUsers(); // Перезагружаем список пользователей после удаления
+            } catch (error) {
+                console.error('Ошибка:', error);
+            }
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        // Проверяем, есть ли залогининый администратор
+        const loggedInAdmin = /* условие, ваше значение для проверки */;
+        const adminStatus = document.getElementById('adminStatus');
+
+        if (loggedInAdmin) {
+            adminStatus.innerHTML = `Залогиненный администратор: ${loggedInAdmin.name}`;
+        } else {
+            adminStatus.innerHTML = `<span class="text-danger">Пользователь не авторизован</span>`;
+        }
+
+        loadUsers(); // Загружаем пользователей при загрузке страницы
+    });
+</script>
 </body>
 </html>
